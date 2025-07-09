@@ -1,0 +1,47 @@
+server:
+  port: 8088
+
+spring:
+  application:
+    name: ConfigServer
+  security:
+    user:
+      name: config-server
+      password: 1234
+      roles: USER
+
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/ingabireol/ByteBitesRestaurant.git
+          clone-on-start: true
+          force-pull: true
+          timeout: 10
+        native:
+          search-locations: classpath:/config-repo
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    lease-expiration-duration-in-seconds: 90
+    lease-renewal-interval-in-seconds: 30
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,refresh,configprops
+  endpoint:
+    health:
+      show-details: always
+logging:
+  level:
+    org.springframework.cloud.config: DEBUG
+    org.springframework.security: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
