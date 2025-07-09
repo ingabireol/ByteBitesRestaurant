@@ -1,16 +1,10 @@
-# Auth Service specific configuration
-# Save this as: ConfigServer/src/main/resources/config-repo/auth-service.yml
-
-server:
-  port: 8080
-
 spring:
   application:
     name: auth-service
 
 # JWT configuration for auth service
 jwt:
-  secret: mySecretKey12345678901234567890
+  secret: j7DDN2Btgi3MC3Z4wNwrmQ1Km9PvWxJMoHhU5T/8MHI=
   expiration: 86400000  # 24 hours
 
 # Logging specific to auth service

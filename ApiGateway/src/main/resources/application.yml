@@ -1,16 +1,24 @@
 spring:
   application:
-    name: api-gateway  # This name must match config files in config server
+    name: api-gateway
+
   main:
     allow-bean-definition-overriding: true
     web-application-type: reactive
 
   # Config Server connection
   config:
-#    import: "configserver:http://localhost:8888"
-    # Alternative format for newer Spring Cloud versions:
-     import: "optional:configserver:http://localhost:8888"
+    import: "configserver:http://localhost:8888"
 
   # Profile configuration
   profiles:
     active: default
+
+# Fallback port if config server is not available
+server:
+  port: 8765
+
+# Fallback JWT configuration
+jwt:
+  secret: j7DDN2Btgi3MC3Z4wNwrmQ1Km9PvWxJMoHhU5T/8MHI=
+  expiration: 86400000

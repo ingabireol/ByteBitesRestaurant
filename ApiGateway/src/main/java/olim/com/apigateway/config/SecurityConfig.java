@@ -23,13 +23,13 @@ public class SecurityConfig {
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
                 // Disable CSRF for APIs
-                .csrf(csrf -> csrf.disable())
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 
                 // Disable form login (we're using JWT)
-                .formLogin(form -> form.disable())
+                .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
                 
                 // Disable HTTP Basic authentication
-                .httpBasic(basic -> basic.disable())
+                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 
                 // Configure authorization
                 .authorizeExchange(exchanges -> exchanges
@@ -38,6 +38,7 @@ public class SecurityConfig {
                         
                         // Allow Eureka endpoints (for monitoring)
                         .pathMatchers("/eureka/**").permitAll()
+                        .pathMatchers("/auth/**").permitAll()
                         
                         // Allow all other requests (our custom filter will handle auth)
                         .anyExchange().permitAll()
