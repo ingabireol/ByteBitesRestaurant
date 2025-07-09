@@ -1,0 +1,100 @@
+server:
+  port: 8765
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      routes:
+        # AUTH PUBLIC ROUTES - FIRST (processed before other auth routes)
+        - id: auth-public-register
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/register
+          filters:
+            - StripPrefix=0
+
+        - id: auth-public-login
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/login
+          filters:
+            - StripPrefix=1
+
+        - id: auth-public-refresh
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/refresh
+          filters:
+            - StripPrefix=1
+
+        - id: auth-public-health
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/health
+          filters:
+            - StripPrefix=1
+
+        - id: auth-public-validate
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/validate
+          filters:
+            - StripPrefix=1
+
+        # AUTH PROTECTED ROUTES - SECOND (with authentication)
+        - id: auth-protected
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/**
+          filters:
+            - StripPrefix=1
+            - name: AuthenticationFilter
+
+        # OTHER SERVICES
+        - id: restaurant-service
+          uri: lb://restaurant-service
+          predicates:
+            - Path=/api/restaurants/**
+          filters:
+            - name: AuthenticationFilter
+
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/api/orders/**
+          filters:
+            - name: AuthenticationFilter
+
+        - id: discovery-server
+          uri: http://localhost:8761
+          predicates:
+            - Path=/eureka/**
+
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:3000"
+              - "http://localhost:8080"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+            maxAge: 3600
+
+jwt:
+  secret: j7DDN2Btgi3MC3Z4wNwrmQ1Km9PvWxJMoHhU5T/8MHI=
+  expiration: 86400000
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.security: INFO
+    olim.com.apigateway: DEBUG

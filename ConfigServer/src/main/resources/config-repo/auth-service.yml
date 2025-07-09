@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: auth-service
+
+# JWT configuration for auth service
+jwt:
+  secret: j7DDN2Btgi3MC3Z4wNwrmQ1Km9PvWxJMoHhU5T/8MHI=
+  expiration: 86400000  # 24 hours
+
+# Logging specific to auth service
+logging:
+  level:
+    olim.com.authservice: DEBUG

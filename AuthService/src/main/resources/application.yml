@@ -1,0 +1,77 @@
+# Local configuration for Auth Service
+# This file contains local overrides and fallback configurations
+server:
+  port: 8080
+
+spring:
+  application:
+    name: auth-service
+  config:
+    import: "configserver:http://localhost:8888"
+
+  cloud:
+    config:
+      fail-fast: false
+      enabled: true
+  # Database configuration (H2 for development)
+  datasource:
+    url: jdbc:h2:mem:authdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  # JPA configuration
+  jpa:
+    hibernate:
+      ddl-auto: create-drop  # Recreate tables on startup (dev only)
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+
+  # H2 Console (development only)
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: false
+
+# Eureka client configuration (fallback)
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+
+# JWT configuration (fallback)
+jwt:
+  secret: mySecretKey12345678901234567890
+  expiration: 86400000  # 24 hours
+
+
+# Actuator configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# Logging configuration
+logging:
+  level:
+    org.springframework.security: INFO
+    olim.com.authservice: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
