@@ -1,0 +1,47 @@
+server:
+  port: 8888  # Standard Config Server port
+
+spring:
+  application:
+    name: config-server
+
+  # Activate native profile for local filesystem
+  profiles:
+    active: native
+
+  cloud:
+    config:
+      server:
+        # Use native profile for local filesystem (easier for development)
+        native:
+          search-locations: classpath:/config-repo
+
+# Eureka client configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+
+# Actuator configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,refresh,configprops
+  endpoint:
+    health:
+      show-details: always
+
+# Logging
+logging:
+  level:
+    org.springframework.cloud.config: DEBUG
+    org.springframework.security: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
