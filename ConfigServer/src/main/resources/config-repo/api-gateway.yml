@@ -1,0 +1,70 @@
+server:
+  port: 8765
+
+spring:
+  application:
+    name: api-gateway
+
+  # Spring Cloud Gateway configuration
+  cloud:
+    gateway:
+      # Define routes to different microservices
+      routes:
+        # Auth Service routes - No authentication needed (it IS the auth service)
+        - id: auth-service
+          uri: lb://auth-service  # lb = load balanced via Eureka
+          predicates:
+            - Path=/auth/**  # Any request starting with /auth
+          filters:
+            - StripPrefix=1  # Remove /auth prefix before forwarding
+
+        # Restaurant Service routes - Authentication required
+        - id: restaurant-service
+          uri: lb://restaurant-service
+          predicates:
+            - Path=/api/restaurants/**
+          filters:
+            - name: AuthenticationFilter  # Custom filter (we'll create this)
+
+        # Order Service routes - Authentication required
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/api/orders/**
+          filters:
+            - name: AuthenticationFilter
+
+        # Discovery Server UI (for development/monitoring)
+        - id: discovery-server
+          uri: http://localhost:8761
+          predicates:
+            - Path=/eureka/**
+
+      # Global CORS configuration
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:3000"  # React frontend
+              - "http://localhost:8080"  # Any other frontend
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+            maxAge: 3600
+
+# JWT configuration (shared with auth service)
+jwt:
+  secret: mySecretKey12345678901234567890
+  expiration: 86400000
+
+# Logging for gateway
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.security: INFO
+    olim.com.apigateway: DEBUG
