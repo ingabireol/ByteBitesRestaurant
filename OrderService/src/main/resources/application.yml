@@ -1,0 +1,100 @@
+# Local configuration for Order Service
+server:
+  port: 8082
+
+spring:
+  application:
+    name: order-service
+
+  # Database configuration (H2 for development)
+  datasource:
+    url: jdbc:h2:mem:orderdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  # JPA configuration
+  jpa:
+    hibernate:
+      ddl-auto: create-drop  # Recreate tables on startup (dev only)
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+
+  # H2 Console (development only)
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: false
+
+  # Config Server (can be disabled for local development)
+  cloud:
+    config:
+      enabled: false
+
+# Eureka client configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+
+# Actuator configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,circuitbreakers
+  endpoint:
+    health:
+      show-details: always
+
+# Logging configuration
+logging:
+  level:
+    org.springframework.security: INFO
+    olim.com.orderservice: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Order service specific configuration
+order:
+  default:
+    tax-rate: 0.08  # 8% tax rate
+    service-fee: 1.50  # Fixed service fee
+  payment:
+    timeout: 30000  # 30 seconds
+  restaurant:
+    timeout: 10000  # 10 seconds
+
+# Circuit Breaker configuration
+resilience4j:
+  circuitbreaker:
+    instances:
+      restaurant-service:
+        register-health-indicator: true
+        ring-buffer-size-in-closed-state: 5
+        ring-buffer-size-in-half-open-state: 3
+        wait-duration-in-open-state: 10s
+        failure-rate-threshold: 50
+        record-exceptions:
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+          - org.springframework.web.client.ResourceAccessException
+      payment-service:
+        register-health-indicator: true
+        ring-buffer-size-in-closed-state: 3
+        ring-buffer-size-in-half-open-state: 2
+        wait-duration-in-open-state: 15s
+        failure-rate-threshold: 60
