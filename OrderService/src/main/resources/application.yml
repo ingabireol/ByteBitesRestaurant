@@ -35,6 +35,13 @@ spring:
   cloud:
     config:
       enabled: false
+  # RabbitMQ configuration
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: admin
+    password: admin123
+    virtual-host: /
 
 # Eureka client configuration
 eureka:
@@ -62,9 +69,11 @@ management:
 logging:
   level:
     org.springframework.security: INFO
-    olim.com.orderservice: DEBUG
+    olim.com.olim.com.orderservice: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    web: debug
+    feign: debug
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
@@ -98,3 +107,17 @@ resilience4j:
         ring-buffer-size-in-half-open-state: 2
         wait-duration-in-open-state: 15s
         failure-rate-threshold: 60
+
+
+# Message queue configuration
+bytebites:
+  messaging:
+    exchange: bytebites.exchange
+    queues:
+      order-placed: order.placed.queue
+      order-status-changed: order.status.changed.queue
+      notification: notification.queue
+    routing-keys:
+      order-placed: order.placed
+      order-status-changed: order.status.changed
+      notification: notification
