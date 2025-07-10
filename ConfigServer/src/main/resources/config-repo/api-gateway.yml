@@ -9,48 +9,12 @@ spring:
     gateway:
       routes:
         # AUTH PUBLIC ROUTES - FIRST (processed before other auth routes)
-        - id: auth-public-register
-          uri: lb://auth-service
-          predicates:
-            - Path=/auth/register
-          filters:
-            - StripPrefix=0
-
-        - id: auth-public-login
-          uri: lb://auth-service
-          predicates:
-            - Path=/auth/login
-          filters:
-            - StripPrefix=1
-
-        - id: auth-public-refresh
-          uri: lb://auth-service
-          predicates:
-            - Path=/auth/refresh
-          filters:
-            - StripPrefix=1
-
-        - id: auth-public-health
-          uri: lb://auth-service
-          predicates:
-            - Path=/auth/health
-          filters:
-            - StripPrefix=1
-
-        - id: auth-public-validate
-          uri: lb://auth-service
-          predicates:
-            - Path=/auth/validate
-          filters:
-            - StripPrefix=1
-
-        # AUTH PROTECTED ROUTES - SECOND (with authentication)
         - id: auth-protected
           uri: lb://auth-service
           predicates:
-            - Path=/auth/**
+            - Path=/api/auth/**
           filters:
-            - StripPrefix=1
+            - StripPrefix=0
             - name: AuthenticationFilter
 
         # OTHER SERVICES
@@ -86,7 +50,7 @@ spring:
               - DELETE
               - OPTIONS
             allowedHeaders: "*"
-            allowCredentials: true
+            allowCredentials: false
             maxAge: 3600
 
 jwt:
