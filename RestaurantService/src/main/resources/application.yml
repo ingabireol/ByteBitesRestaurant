@@ -1,0 +1,74 @@
+# Local configuration for Restaurant Service
+server:
+  port: 8081
+
+spring:
+  application:
+    name: restaurant-service
+
+  # Database configuration (H2 for development)
+  datasource:
+    url: jdbc:h2:mem:restaurantdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  # JPA configuration
+  jpa:
+    hibernate:
+      ddl-auto: create-drop  # Recreate tables on startup (dev only)
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+
+  # H2 Console (development only)
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: false
+  cloud:
+    config:
+      enabled: false
+
+# Eureka client configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+
+# Actuator configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# Logging configuration
+logging:
+  level:
+    org.springframework.security: INFO
+    olim.com.restaurantservice: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Restaurant service specific configuration
+restaurant:
+  default:
+    delivery-fee: 2.99
+    minimum-order: 10.00
+    estimated-delivery-time: 30
