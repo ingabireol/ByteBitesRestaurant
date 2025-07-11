@@ -1,0 +1,116 @@
+# Local configuration for Notification Service
+server:
+  port: 8083
+
+spring:
+  application:
+    name: notification-service
+
+  # Database configuration (H2 for development)
+  datasource:
+    url: jdbc:h2:mem:notificationdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  # JPA configuration
+  jpa:
+    hibernate:
+      ddl-auto: create-drop  # Recreate tables on startup (dev only)
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+
+  # H2 Console (development only)
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: false
+
+  # RabbitMQ configuration
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: admin
+    password: admin123
+    virtual-host: /
+
+  # Mail configuration (for development - use console output)
+  mail:
+    host: localhost
+    port: 1025  # MailHog or similar for testing
+    username:
+    password:
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+  # Config Server (can be disabled for local development)
+  cloud:
+    config:
+      enabled: false
+
+# Eureka client configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+
+# Actuator configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# Logging configuration
+logging:
+  level:
+    org.springframework.amqp: DEBUG
+    olim.com.notificationservice: DEBUG
+    org.hibernate.SQL: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Message queue configuration (same as Order Service)
+bytebites:
+  messaging:
+    exchange: bytebites.exchange
+    queues:
+      order-placed: order.placed.queue
+      order-status-changed: order.status.changed.queue
+      notification: notification.queue
+    routing-keys:
+      order-placed: order.placed
+      order-status-changed: order.status.changed
+      notification: notification
+
+# Notification service specific configuration
+notification:
+  email:
+    enabled: true
+    from: "noreply@bytebites.com"
+    templates:
+      order-confirmation: "Order Confirmation - ByteBites"
+      status-update: "Order Status Update - ByteBites"
+  sms:
+    enabled: true
+    provider: "console"  # console, twilio, etc.
+  push:
+    enabled: false
