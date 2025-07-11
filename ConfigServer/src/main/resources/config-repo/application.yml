@@ -1,6 +1,3 @@
-# Global configuration for all ByteBites microservices
-# This file should be created at: src/main/resources/config-repo/application.yml
-
 # Eureka client configuration (shared by all services)
 eureka:
   client:

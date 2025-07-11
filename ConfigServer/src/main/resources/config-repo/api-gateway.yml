@@ -8,7 +8,16 @@ spring:
   cloud:
     gateway:
       routes:
-        # AUTH PUBLIC ROUTES - FIRST (processed before other auth routes)
+        # AUTH SERVICE ROUTES
+        # Public auth endpoints (no authentication required)
+        - id: auth-public
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/auth/register,/api/auth/login,/api/auth/refresh,/api/auth/health,/api/auth/validate
+          filters:
+            - StripPrefix=0
+
+        # Protected auth endpoints (require authentication)
         - id: auth-protected
           uri: lb://auth-service
           predicates:
@@ -17,14 +26,43 @@ spring:
             - StripPrefix=0
             - name: AuthenticationFilter
 
-        # OTHER SERVICES
-        - id: restaurant-service
+        # RESTAURANT SERVICE ROUTES
+        # Public restaurant endpoints (no authentication required)
+        - id: restaurant-public
+          uri: lb://restaurant-service
+          predicates:
+            - Path=/api/restaurants,/api/restaurants/{id},/api/restaurants/search,/api/restaurants/cuisine/**
+            - Method=GET
+          filters:
+            - StripPrefix=0
+
+        # Public menu endpoints (no authentication required)
+        - id: restaurant-menu-public
+          uri: lb://restaurant-service
+          predicates:
+            - Path=/api/restaurants/{id}/menu,/api/restaurants/{id}/menu/**
+            - Method=GET
+          filters:
+            - StripPrefix=0
+
+        # Restaurant health check
+        - id: restaurant-health
+          uri: lb://restaurant-service
+          predicates:
+            - Path=/api/restaurants/health,/api/restaurants/menu/health
+          filters:
+            - StripPrefix=0
+
+        # Protected restaurant endpoints (require authentication)
+        - id: restaurant-protected
           uri: lb://restaurant-service
           predicates:
             - Path=/api/restaurants/**
           filters:
+            - StripPrefix=0
             - name: AuthenticationFilter
 
+        # ORDER SERVICE (when you create it)
         - id: order-service
           uri: lb://order-service
           predicates:
@@ -32,33 +70,39 @@ spring:
           filters:
             - name: AuthenticationFilter
 
+        # DISCOVERY SERVER (for monitoring)
         - id: discovery-server
           uri: http://localhost:8761
           predicates:
             - Path=/eureka/**
 
+      # Global CORS configuration
       globalcors:
         corsConfigurations:
           '[/**]':
             allowedOrigins:
-              - "http://localhost:3000"
-              - "http://localhost:8080"
+              - "http://localhost:3000"  # React frontend
+              - "http://localhost:8080"  # Angular frontend
             allowedMethods:
               - GET
               - POST
               - PUT
               - DELETE
+              - PATCH
               - OPTIONS
             allowedHeaders: "*"
             allowCredentials: false
             maxAge: 3600
 
+# JWT configuration
 jwt:
   secret: j7DDN2Btgi3MC3Z4wNwrmQ1Km9PvWxJMoHhU5T/8MHI=
   expiration: 86400000
 
+# Logging configuration
 logging:
   level:
     org.springframework.cloud.gateway: DEBUG
     org.springframework.security: INFO
     olim.com.apigateway: DEBUG
+    reactor.netty.http.client: DEBUG

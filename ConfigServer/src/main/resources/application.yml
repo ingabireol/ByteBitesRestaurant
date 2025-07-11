@@ -4,17 +4,16 @@ server:
 spring:
   application:
     name: config-server
-
-  # Activate native profile for local filesystem
-  profiles:
-    active: native
-
   cloud:
     config:
       server:
         # Use native profile for local filesystem (easier for development)
         native:
           search-locations: classpath:/config-repo
+
+  # Activate native profile for local filesystem
+  profiles:
+    active: native
 
 # Eureka client configuration
 eureka:
