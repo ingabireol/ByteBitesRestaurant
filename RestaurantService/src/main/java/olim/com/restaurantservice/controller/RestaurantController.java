@@ -55,6 +55,9 @@ public class RestaurantController {
     /**
      * Get restaurant by ID with menu items (public endpoint)
      */
+    /**
+     * Get restaurant by ID with menu items (public endpoint)
+     */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<RestaurantDetailResponse>> getRestaurantById(@PathVariable Long id) {
         try {
@@ -62,8 +65,9 @@ public class RestaurantController {
                     .orElseThrow(() -> new RuntimeException("Restaurant not found"));
 
             List<MenuItem> menuItems = menuItemService.getAvailableMenuItems(id);
-            List<MenuItemDto.SimpleMenuItemResponse> menuItemResponses = menuItems.stream()
-                    .map(MenuItemDto.SimpleMenuItemResponse::new)
+
+            List<MenuItemDto.MenuItemResponse> menuItemResponses = menuItems.stream()
+                    .map(MenuItemDto.MenuItemResponse::new)
                     .collect(Collectors.toList());
 
             RestaurantDetailResponse response = new RestaurantDetailResponse(restaurant, menuItemResponses);
